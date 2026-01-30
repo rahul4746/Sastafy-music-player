@@ -1,0 +1,168 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  background: #0d0d0d;
+  color: white;
+}
+
+.app {
+  padding-bottom: 120px;
+  position: relative;
+}
+
+/* ===== HEADER ===== */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(180deg, #1a1a1a, #0d0d0d);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.brand h1 {
+  font-size: 22px;
+}
+
+.brand span {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.add-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1db954;
+  border: none;
+  color: black;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(29,185,84,0.4);
+}
+
+.add-btn:hover {
+  transform: scale(1.08);
+}
+
+/* ===== EMPTY STATE ===== */
+#emptyState {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -45%);
+  text-align: center;
+  color: #b3b3b3;
+  pointer-events: none;
+}
+
+
+.spotify-icon {
+  font-size: 96px;
+  color: #1db954;
+  margin-bottom: 16px;
+}
+
+#emptyState h2 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+#emptyState p {
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+/* ===== NOW PLAYING ===== */
+.now-playing {
+  display: none;
+  text-align: center;
+  padding: 20px;
+}
+
+.now-playing img {
+  width: 220px;
+  height: 220px;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+}
+
+.playing img {
+  transform: scale(1.05);
+}
+
+/* ===== PLAYLIST ===== */
+.playlist {
+  padding: 10px 20px;
+}
+
+.song {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.song:hover {
+  background: #1a1a1a;
+}
+
+.song.active {
+  background: #1db95433;
+}
+
+.song span {
+  opacity: 0.5;
+}
+
+.song button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 18px;
+}
+
+/* ===== PLAYER BAR ===== */
+.player-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #121212;
+  padding: 12px;
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+}
+
+#progress {
+  width: 100%;
+  accent-color: #1db954;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 10px;
+}
+
+.controls button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+}
+
+.controls button.active {
+  color: #1db954;
+}

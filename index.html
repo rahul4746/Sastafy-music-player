@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sastafy</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#22c55e">
+
+  <!-- Media tags -->
+  <script src="https://unpkg.com/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="top-bar">
+      <div class="brand">
+        <h1>Sastafy</h1>
+        <span>Your Music</span>
+      </div>
+
+      <button id="addSongs" class="add-btn">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </header>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState">
+      <i class="fa-brands fa-spotify spotify-icon"></i>
+      <h2>No songs added</h2>
+      <p>Tap + to add songs</p>
+    </div>
+
+    <!-- NOW PLAYING -->
+    <section class="now-playing">
+      <img id="cover" alt="cover">
+      <h3 id="title"></h3>
+      <p id="artist"></p>
+    </section>
+
+    <!-- PLAYLIST -->
+    <section class="playlist"></section>
+  </div>
+
+  <!-- PLAYER BAR -->
+  <div class="player-bar">
+
+    <input
+      type="file"
+      id="fileInput"
+      accept=".mp3,audio/*"
+      multiple
+      hidden
+    />
+
+
+    <input type="range" id="progress" value="0">
+
+    <div class="controls">
+      <button id="shuffle"><i class="fa-solid fa-shuffle"></i></button>
+      <button id="prev"><i class="fa-solid fa-backward"></i></button>
+      <button id="play"><i class="fa-solid fa-play"></i></button>
+      <button id="next"><i class="fa-solid fa-forward"></i></button>
+      <button id="repeat"><i class="fa-solid fa-repeat"></i></button>
+    </div>
+  </div>
+
+  <script src="js/player.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js");
+    }
+  </script>
+
+</body>
+</html>
