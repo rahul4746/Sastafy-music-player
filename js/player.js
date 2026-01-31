@@ -185,6 +185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     for (const file of files) {
       if (!file.type.startsWith("audio/")) continue;
 
+      await dbReady;                     // 🔑 FIX
       const saved = await saveSongToDB(file);
       addSongToUI(saved);
     }
@@ -243,5 +244,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   /* ================= INIT ================= */
+  await dbReady;              // 🔑 FIX
   await loadSongsFromCache();
 });
