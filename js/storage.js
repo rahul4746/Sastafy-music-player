@@ -35,13 +35,13 @@ function openDB() {
   });
 }
 
+/* 🔑 IMPORTANT: global DB-ready promise */
+const dbReady = openDB();
+
 /* ---------- Save Song ---------- */
 function saveSongToDB(file) {
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject("DB not ready");
-      return;
-    }
+  return new Promise(async (resolve, reject) => {
+    await dbReady;
 
     const reader = new FileReader();
 
@@ -71,11 +71,8 @@ function saveSongToDB(file) {
 
 /* ---------- Get All Songs ---------- */
 function getAllSongsFromDB() {
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject("DB not ready");
-      return;
-    }
+  return new Promise(async (resolve, reject) => {
+    await dbReady;
 
     const tx = db.transaction(STORE_NAME, "readonly");
     const store = tx.objectStore(STORE_NAME);
@@ -88,11 +85,8 @@ function getAllSongsFromDB() {
 
 /* ---------- Delete One Song ---------- */
 function deleteSongFromDB(id) {
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject("DB not ready");
-      return;
-    }
+  return new Promise(async (resolve, reject) => {
+    await dbReady;
 
     const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
@@ -106,11 +100,8 @@ function deleteSongFromDB(id) {
 
 /* ---------- Clear All Songs ---------- */
 function clearAllSongsFromDB() {
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject("DB not ready");
-      return;
-    }
+  return new Promise(async (resolve, reject) => {
+    await dbReady;
 
     const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
@@ -126,10 +117,3 @@ function clearAllSongsFromDB() {
 function createSongURL(blob) {
   return URL.createObjectURL(blob);
 }
-
-/* ---------- Init on Load ---------- */
-openDB().then(() => {
-  console.log("Sastafy DB ready");
-}).catch(err => {
-  console.error(err);
-});
