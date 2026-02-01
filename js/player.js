@@ -1,3 +1,8 @@
+/*==== import control part ======*/
+import { initMediaControls, updateMediaInfo } from "./control.js";
+import { initTimeDisplay } from "./time.js";
+
+
 document.addEventListener("DOMContentLoaded", async () => {
 
   const songs = [];
@@ -10,7 +15,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const DEFAULT_COVER = "assets/images/default.png";
   const RESUME_KEY = "player_resume";
 
-
   /* ===== SAFE DOM GETS ===== */
   const playBtn = document.getElementById("play");
   const prevBtn = document.getElementById("prev");
@@ -21,6 +25,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fileInput = document.getElementById("fileInput");
   const addSongsBtn = document.getElementById("addSongs");
 
+  /* ===== TIME DISPLAY ===== */
+  const currentTimeEl = document.getElementById("currentTime");
+  const durationEl = document.getElementById("duration");
+
+  /* ===== NOW PLAYING ELEMENTS ===== */
   const titleEl = document.getElementById("title");
   const artistEl = document.getElementById("artist");
   const coverEl = document.getElementById("cover");
@@ -48,24 +57,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     currentIndex = index;
     updateEmptyState(true);
-
+    audio.currentTime = 0;
     audio.src = song.src;
     audio.load();
-    // ✅ Restore timestamp if same song
-    const resume = JSON.parse(localStorage.getItem(RESUME_KEY));
 
+    /* ===== restore timestamp if same song ===== */
+    const resume = JSON.parse(localStorage.getItem(RESUME_KEY));
     if (resume && resume.index === index) {
       audio.onloadedmetadata = () => {
         audio.currentTime = resume.time || 0;
       };
     }
 
-
     if (titleEl) titleEl.textContent = song.title || "Unknown";
     if (artistEl) artistEl.textContent = song.artist || "";
     if (coverEl) coverEl.src = song.cover || DEFAULT_COVER;
 
     highlightActiveSong();
+
+    /* ===== update lock screen / notification info ===== */
+    updateMediaInfo?.(song);
 
     if (autoPlay) {
       audio.play().catch(() => {});
@@ -75,22 +86,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   /* ================= PLAY / PAUSE ================= */
   playBtn?.addEventListener("click", () => {
 
-    // ✅ If nothing loaded yet → load last or first song
     if (!audio.src && songs.length) {
       const resume = JSON.parse(localStorage.getItem(RESUME_KEY));
       const index = resume?.index ?? 0;
-
       loadSong(index, true);
       return;
     }
 
     if (!audio.src) return;
 
-    audio.paused
-      ? audio.play().catch(() => {})
-      : audio.pause();
+    audio.paused ? audio.play().catch(() => {}) : audio.pause();
   });
-
 
   audio.addEventListener("play", () => {
     if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
@@ -98,6 +104,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   audio.addEventListener("pause", () => {
     if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+  });
+
+  /* ===== NOW PLAYING ANIMATION STATE ===== */
+  audio.addEventListener("play", () => {
+    document.querySelector(".song.active")?.classList.add("playing");
+  });
+
+  audio.addEventListener("pause", () => {
+    document.querySelector(".song.active")?.classList.remove("playing");
   });
 
   /* ================= NEXT / PREV ================= */
@@ -156,13 +171,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       progress.value = (audio.currentTime / audio.duration) * 100;
     }
 
-    // ✅ Save resume data
+    /* ===== save resume state ===== */
     localStorage.setItem(RESUME_KEY, JSON.stringify({
       index: currentIndex,
       time: audio.currentTime
     }));
   });
-
 
   progress?.addEventListener("input", () => {
     if (!audio.duration) return;
@@ -179,35 +193,31 @@ document.addEventListener("DOMContentLoaded", async () => {
       div.className = "song";
 
       div.innerHTML = `
-        <span>${i + 1}</span>
+        <span class="index">${i + 1}</span>
+        <div class="eq">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
 
-        <img
-          class="song-cover"
-          src="${song.cover || DEFAULT_COVER}"
-          onerror="this.src='${DEFAULT_COVER}'"
-          alt="cover"
-        />
-
+        <img class="song-cover"
+             src="${song.cover || DEFAULT_COVER}"
+             onerror="this.src='${DEFAULT_COVER}'" />
         <div class="song-info">
           <h4>${song.title}</h4>
           <p>${song.artist}</p>
         </div>
-
         <button class="remove">
           <i class="fa-solid fa-xmark"></i>
         </button>
       `;
 
-
-      div.addEventListener("click", () => {
-        loadSong(i, true);
-      });
+      div.addEventListener("click", () => loadSong(i, true));
 
       div.querySelector(".remove").addEventListener("click", async e => {
         e.stopPropagation();
         await deleteSongFromDB(song.dbId);
         songs.splice(i, 1);
-
         songs.length ? loadSong(0) : updateEmptyState(false);
         renderPlaylist();
       });
@@ -219,6 +229,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function highlightActiveSong() {
     document.querySelectorAll(".song").forEach((el, i) => {
       el.classList.toggle("active", i === currentIndex);
+      el.classList.remove("playing");
     });
   }
 
@@ -234,10 +245,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       addSongToUI(saved);
     }
 
-    if (!audio.src && songs.length) {
-      loadSong(0);
-    }
-
+    if (!audio.src && songs.length) loadSong(0);
     fileInput.value = "";
   });
 
@@ -282,26 +290,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     cachedSongs.forEach(addSongToUI);
 
-    // ✅ Restore last song (without autoplay)
     const resume = JSON.parse(localStorage.getItem(RESUME_KEY));
     const index = resume?.index ?? 0;
-
     loadSong(index);
   }
-
 
   /* ================= INIT ================= */
   await loadSongsFromCache();
 
- /*========save time stamp while playing========*/
-  audio.addEventListener("timeupdate", () => {
-    if (!audio.duration) return;
-
-    saveResumeState(currentIndex, audio.currentTime);
-
-    if (progress) {
-      progress.value = (audio.currentTime / audio.duration) * 100;
-    }
+  /* ===== INIT MEDIA CONTROLS (lock screen / notification) ===== */
+  initMediaControls(audio, () => songs[currentIndex], {
+    next: () => nextBtn?.click(),
+    prev: () => prevBtn?.click()
   });
+
+  /* ===== INIT TIME DISPLAY ===== */
+  initTimeDisplay(audio, currentTimeEl, durationEl);
+
 
 });
