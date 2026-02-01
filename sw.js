@@ -3,19 +3,19 @@
    Service Worker
    =============================== */
 
-const CACHE_NAME = "sastafy-v9";
+const CACHE_NAME = "sastafy-v10";
 
 const FILES_TO_CACHE = [
   "./",                // root
   "./index.html",
   "./js/style.css",
   "./js/player.js",
-  "./storage.js",
+  "./js/storage.js",
   "./sw.js",
   "./manifest.json",
 
   // optional but recommended
-  "./assets/images/default.jpg"
+  "/assets/images/default.jpg"
 ];
 
 /* ---------- INSTALL ---------- */
@@ -70,10 +70,3 @@ self.addEventListener("fetch", event => {
     })
   );
 });
-
-
-
-
-
-
-
