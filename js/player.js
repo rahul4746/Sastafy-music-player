@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     nowPlaying.style.display = "none";
     titleEl.textContent = "No songs added";
     artistEl.textContent = "Tap + to add songs";
-    coverEl.src = "assets/images/default.jpg";
+    coverEl.src = "assets/images/default.png";
     audio.src = "";
   }
 
@@ -249,3 +249,4 @@ document.addEventListener("DOMContentLoaded", async () => {
   await dbReady;
   await loadSongsFromCache();
 });
+
