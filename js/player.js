@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let currentIndex = 0;
   let isShuffle = false;
-  let repeatMode = "off";
+  let repeatMode = "off"; // off | all | one
 
   const playBtn = document.getElementById("play");
   const prevBtn = document.getElementById("prev");
@@ -21,14 +21,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const coverEl = document.getElementById("cover");
   const playlistEl = document.querySelector(".playlist");
   const nowPlaying = document.querySelector(".now-playing");
-
   const emptyState = document.getElementById("emptyState");
 
   /* ================= EMPTY STATE ================= */
   function updateEmptyState() {
-    if (emptyState) emptyState.style.display = "block";
-    if (nowPlaying) nowPlaying.style.display = "none";
-
+    emptyState.style.display = "block";
+    nowPlaying.style.display = "none";
     titleEl.textContent = "No songs added";
     artistEl.textContent = "Tap + to add songs";
     coverEl.src = "assets/images/default.jpg";
@@ -40,8 +38,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const song = songs[index];
     if (!song) return;
 
-    if (emptyState) emptyState.style.display = "none";
-    if (nowPlaying) nowPlaying.style.display = "block";
+    emptyState.style.display = "none";
+    nowPlaying.style.display = "block";
 
     audio.src = song.src;
     audio.load();
@@ -89,31 +87,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     audio.play();
   };
 
-  /* ================= SHUFFLE / REPEAT ================= */
+  /* ================= SHUFFLE ================= */
   shuffleBtn.onclick = () => {
     isShuffle = !isShuffle;
     shuffleBtn.classList.toggle("active", isShuffle);
   };
 
+  /* ================= REPEAT (FINAL & CLEAN) ================= */
   repeatBtn.onclick = () => {
     repeatMode =
       repeatMode === "off" ? "all" :
       repeatMode === "all" ? "one" : "off";
 
     repeatBtn.classList.toggle("active", repeatMode !== "off");
-    repeatBtn.innerHTML =
-      repeatMode === "one"
-        ? '<i class="fa-solid fa-repeat-1"></i>'
-        : '<i class="fa-solid fa-repeat"></i>';
+
+    if (repeatMode === "one") {
+      repeatBtn.dataset.mode = "one";
+    } else {
+      delete repeatBtn.dataset.mode;
+    }
   };
 
+  /* ================= SONG END ================= */
   audio.onended = () => {
     if (repeatMode === "one") {
       audio.currentTime = 0;
       audio.play();
-    } else {
+    } else if (repeatMode === "all") {
       nextBtn.click();
     }
+    // off → stop
   };
 
   /* ================= PROGRESS ================= */
@@ -185,7 +188,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     for (const file of files) {
       if (!file.type.startsWith("audio/")) continue;
 
-      await dbReady;                     // 🔑 FIX
+      await dbReady;
       const saved = await saveSongToDB(file);
       addSongToUI(saved);
     }
@@ -225,10 +228,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
-    if (emptyState) emptyState.style.display = "none";
+    emptyState.style.display = "none";
   }
 
-  /* ================= LOAD FROM CACHE ================= */
+  /* ================= LOAD CACHE ================= */
   async function loadSongsFromCache() {
     const cachedSongs = await getAllSongsFromDB();
 
@@ -238,12 +241,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     cachedSongs.forEach(addSongToUI);
-
     currentIndex = 0;
     loadSong(0);
   }
 
   /* ================= INIT ================= */
-  await dbReady;              // 🔑 FIX
+  await dbReady;
   await loadSongsFromCache();
 });
