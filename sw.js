@@ -3,7 +3,7 @@
    Service Worker
    =============================== */
 
-const CACHE_NAME = "sastafy-v1.7"; // ⬅️ bump version to force update
+const CACHE_NAME = "sastafy-v1.8"; // ⬅️ bump version to force update
 
 const FILES_TO_CACHE = [
   "/",                       // root
@@ -83,4 +83,5 @@ self.addEventListener("fetch", event => {
     })
   );
 });
+
 
