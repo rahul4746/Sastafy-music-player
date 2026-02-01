@@ -41,25 +41,8 @@ body {
   color: #9ca3af;
 }
 
-/* Download Button */
-.fab {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #1db954;
-  border: none;
-  color: black;
-  font-size: 20px;
-  cursor: pointer;
-  box-shadow: 0 8px 24px rgba(29,185,84,0.4);
-  transition: transform 0.2s ease;
-}
-
-.fab:hover {
-  transform: scale(1.08);
-}
-
-/* Add Button */
+/* ===== ROUND ICON BUTTONS (INSTALL + ADD) ===== */
+.fab,
 .add-btn {
   width: 48px;
   height: 48px;
@@ -69,10 +52,17 @@ body {
   color: black;
   font-size: 20px;
   cursor: pointer;
+
+  /* 🔥 FIX: perfect icon centering */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   box-shadow: 0 8px 24px rgba(29,185,84,0.4);
   transition: transform 0.2s ease;
 }
 
+.fab:hover,
 .add-btn:hover {
   transform: scale(1.08);
 }
