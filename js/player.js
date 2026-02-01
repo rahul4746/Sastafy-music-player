@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           title: tag.tags.title || dbSong.name.replace(/\.[^/.]+$/, ""),
           artist: tag.tags.artist || "Local File",
           src: url,
-          cover: "assets/images/default.jpg"
+          cover: "assets/images/default.png"
         });
         renderPlaylist();
       },
@@ -249,4 +249,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   await dbReady;
   await loadSongsFromCache();
 });
+
 
