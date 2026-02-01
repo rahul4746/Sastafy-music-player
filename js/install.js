@@ -1,23 +1,29 @@
 let deferredPrompt;
-const installBtn = document.getElementById("installBtn");
 
-// hide initially
-installBtn.style.display = "none";
+document.addEventListener("DOMContentLoaded", () => {
+  const installBtn = document.getElementById("downloadBtn");
 
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installBtn.style.display = "block";
-});
+  // Safety check
+  if (!installBtn) return;
 
-installBtn.addEventListener("click", async () => {
-  if (!deferredPrompt) return;
-
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-
-  deferredPrompt = null;
+  // Hide button initially
   installBtn.style.display = "none";
 
-  console.log("Install result:", outcome);
+  // Listen for install availability
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();          // stop automatic mini-infobar
+    deferredPrompt = e;          // save the event
+    installBtn.style.display = "inline-flex";
+  });
+
+  // Handle install button click
+  installBtn.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+
+    deferredPrompt = null;
+    installBtn.style.display = "none";
+  });
 });
