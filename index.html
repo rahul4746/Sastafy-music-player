@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="./icons/app.png">
+  <link rel="icon" href="icons/app.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <title>Sastafy</title>
 
   <!-- PWA -->
@@ -46,13 +47,6 @@
       <p>Tap + to add songs</p>
     </div>
 
-    <!-- NOW PLAYING -->
-    <!-- <section class="now-playing">
-      <img id="cover" alt="cover">
-      <h3 id="title"></h3>
-      <p id="artist"></p>
-    </section> -->
-
     <!-- PLAYLIST -->
     <section class="playlist"></section>
   </div>
@@ -68,8 +62,14 @@
       hidden
     />
 
-
+    <!-- PROGRESS BAR -->  
     <input type="range" id="progress" value="0">
+    <!-- TIME DISPLAY -->
+     <div class="time-row">
+      <span id="currentTime">00:00</span>
+      <span id="duration">00:00</span>
+    </div>
+
 
     <div class="controls">
       <button id="shuffle"><i class="fa-solid fa-shuffle"></i></button>
@@ -81,7 +81,7 @@
   </div>
 
   <script src="js/storage.js"></script>
-  <script src="js/player.js"></script>
+  <script type="module" src="js/player.js"></script>
   <script src="js/install.js"></script>
 
   <script>
@@ -92,6 +92,3 @@
 
 </body>
 </html>
-
-
-
