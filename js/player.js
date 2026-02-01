@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   let repeatMode = "off"; // off | all | one
 
   const DEFAULT_COVER = "assets/images/default.png";
+  const RESUME_KEY = "player_resume";
+
 
   /* ===== SAFE DOM GETS ===== */
   const playBtn = document.getElementById("play");
@@ -49,6 +51,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     audio.src = song.src;
     audio.load();
+    // ✅ Restore timestamp if same song
+    const resume = JSON.parse(localStorage.getItem(RESUME_KEY));
+
+    if (resume && resume.index === index) {
+      audio.onloadedmetadata = () => {
+        audio.currentTime = resume.time || 0;
+      };
+    }
+
 
     if (titleEl) titleEl.textContent = song.title || "Unknown";
     if (artistEl) artistEl.textContent = song.artist || "";
@@ -63,9 +74,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   /* ================= PLAY / PAUSE ================= */
   playBtn?.addEventListener("click", () => {
+
+    // ✅ If nothing loaded yet → load last or first song
+    if (!audio.src && songs.length) {
+      const resume = JSON.parse(localStorage.getItem(RESUME_KEY));
+      const index = resume?.index ?? 0;
+
+      loadSong(index, true);
+      return;
+    }
+
     if (!audio.src) return;
-    audio.paused ? audio.play().catch(() => {}) : audio.pause();
+
+    audio.paused
+      ? audio.play().catch(() => {})
+      : audio.pause();
   });
+
 
   audio.addEventListener("play", () => {
     if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
@@ -125,9 +150,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   /* ================= PROGRESS ================= */
   audio.addEventListener("timeupdate", () => {
-    if (!progress || !audio.duration) return;
-    progress.value = (audio.currentTime / audio.duration) * 100;
+    if (!audio.duration) return;
+
+    if (progress) {
+      progress.value = (audio.currentTime / audio.duration) * 100;
+    }
+
+    // ✅ Save resume data
+    localStorage.setItem(RESUME_KEY, JSON.stringify({
+      index: currentIndex,
+      time: audio.currentTime
+    }));
   });
+
 
   progress?.addEventListener("input", () => {
     if (!audio.duration) return;
@@ -246,9 +281,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     cachedSongs.forEach(addSongToUI);
-    loadSong(0);
+
+    // ✅ Restore last song (without autoplay)
+    const resume = JSON.parse(localStorage.getItem(RESUME_KEY));
+    const index = resume?.index ?? 0;
+
+    loadSong(index);
   }
+
 
   /* ================= INIT ================= */
   await loadSongsFromCache();
+
+ /*========save time stamp while playing========*/
+  audio.addEventListener("timeupdate", () => {
+    if (!audio.duration) return;
+
+    saveResumeState(currentIndex, audio.currentTime);
+
+    if (progress) {
+      progress.value = (audio.currentTime / audio.duration) * 100;
+    }
+  });
+
 });
