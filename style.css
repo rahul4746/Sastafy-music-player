@@ -21,11 +21,15 @@ body {
   top: 0;
   z-index: 10;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 20px;
   background: linear-gradient(180deg, #1a1a1a, #0d0d0d);
   border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.brand {
+  margin-right: auto;
 }
 
 .brand h1 {
@@ -37,6 +41,25 @@ body {
   color: #9ca3af;
 }
 
+/* Download Button */
+.fab {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1db954;
+  border: none;
+  color: black;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(29,185,84,0.4);
+  transition: transform 0.2s ease;
+}
+
+.fab:hover {
+  transform: scale(1.08);
+}
+
+/* Add Button */
 .add-btn {
   width: 48px;
   height: 48px;
@@ -47,6 +70,7 @@ body {
   font-size: 20px;
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(29,185,84,0.4);
+  transition: transform 0.2s ease;
 }
 
 .add-btn:hover {
@@ -63,7 +87,6 @@ body {
   color: #b3b3b3;
   pointer-events: none;
 }
-
 
 .spotify-icon {
   font-size: 96px;
