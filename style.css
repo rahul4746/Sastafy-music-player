@@ -205,3 +205,33 @@ body {
   pointer-events: none;
 }
 
+/* ===== PLAYLIST COVER (SMALL, LEFT OF TITLE) ===== */
+.song {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.song-cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.song-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.song-info h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.song-info p {
+  font-size: 12px;
+  opacity: 0.6;
+}
