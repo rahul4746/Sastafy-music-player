@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!songs.length) return;
 
     // Spotify behavior
-    if (audio.currentTime > 5) {
+    if (audio.currentTime > 3) {
       audio.currentTime = 0;
       audio.play().catch(() => {});
       return;
@@ -323,3 +323,4 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 });
+
