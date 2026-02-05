@@ -30,6 +30,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const progress = document.getElementById("progress");
   const fileInput = document.getElementById("fileInput");
   const addSongsBtn = document.getElementById("addSongs");
+  const miniTitle = document.getElementById("miniTitle");
+  const queueBtn = document.getElementById("queueBtn");
 
   /* ===== TIME DISPLAY ===== */
   const currentTimeEl = document.getElementById("currentTime");
@@ -53,6 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (artistEl) artistEl.textContent = "Tap + to add songs";
       if (coverEl) coverEl.src = DEFAULT_COVER;
       audio.src = "";
+      if (miniTitle) miniTitle.textContent = "No song playing";
     }
   }
 
@@ -84,6 +87,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (titleEl) titleEl.textContent = song.title || "Unknown";
     if (artistEl) artistEl.textContent = song.artist || "";
     if (coverEl) coverEl.src = song.cover || DEFAULT_COVER;
+
+    /* ===== mini title ===== */
+    if (miniTitle) {
+      miniTitle.textContent = `${song.title} – ${song.artist || "Unknown"}`;
+        requestAnimationFrame(() => {
+          const parent = miniTitle.parentElement;
+          parent.classList.toggle(
+            "scroll",
+            miniTitle.scrollWidth > parent.clientWidth
+          );
+        });
+
+    }
+
+    if (queueBtn) {
+      queueBtn.disabled = false;
+    }
+
 
     highlightActiveSong();
 
@@ -241,39 +262,63 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       div.innerHTML = `
         <span class="index">${i + 1}</span>
+
         <div class="eq">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span></span><span></span><span></span>
         </div>
 
         <img class="song-cover"
-             src="${song.cover || DEFAULT_COVER}"
-             onerror="this.src='${DEFAULT_COVER}'" />
+            src="${song.cover || DEFAULT_COVER}"
+            onerror="this.src='${DEFAULT_COVER}'" />
+
         <div class="song-info">
           <h4>${song.title}</h4>
           <p>${song.artist}</p>
         </div>
-        <button class="remove">
-          <i class="fa-solid fa-xmark"></i>
+
+        <button class="menu-btn">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
         </button>
+
+        <div class="song-menu">
+          <button class="play-next"><i class="fa-solid fa-forward-step"></i> Play Next</button>
+          <button class="add-queue"><i class="fa-solid fa-list-ul"></i> Add to Queue</button>
+          <button class="remove-song"><i class="fa-solid fa-trash"></i> Remove</button>
+        </div>
       `;
 
-      div.addEventListener("click", () => loadSong(i, true));
-
-      div.addEventListener("contextmenu", e => {
-        e.preventDefault();
-
-        const choice = confirm("OK = Play Next\nCancel = Add to Queue");
-
-        if (choice) {
-          queuePlayNext(i); // Play Next
-        } else {
-          addToQueue(i);    // Add to Queue
-        }
+      // click to play
+      div.addEventListener("click", e => {
+        if (e.target.closest(".menu-btn")) return;
+        loadSong(i, true);
       });
 
-      div.querySelector(".remove").addEventListener("click", async e => {
+
+      // menu logic
+      const menuBtn = div.querySelector(".menu-btn");
+      const menu = div.querySelector(".song-menu");
+
+      menuBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        document.querySelectorAll(".song-menu").forEach(m => {
+          if (m !== menu) m.style.display = "none";
+        });
+        menu.style.display = menu.style.display === "block" ? "none" : "block";
+      });
+
+      menu.querySelector(".play-next").addEventListener("click", e => {
+        e.stopPropagation();
+        queuePlayNext(i);
+        menu.style.display = "none";
+      });
+
+      menu.querySelector(".add-queue").addEventListener("click", e => {
+        e.stopPropagation();
+        addToQueue(i);
+        menu.style.display = "none";
+      });
+
+      menu.querySelector(".remove-song").addEventListener("click", async e => {
         e.stopPropagation();
         await deleteSongFromDB(song.dbId);
         songs.splice(i, 1);
@@ -283,8 +328,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       playlistEl.appendChild(div);
     });
-
   }
+
+
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".song-menu").forEach(m => {
+      m.style.display = "none";
+    });
+  });
+
 
   function highlightActiveSong() {
     document.querySelectorAll(".song").forEach((el, i) => {
@@ -366,6 +418,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   /* ===== INIT TIME DISPLAY ===== */
   initTimeDisplay(audio, currentTimeEl, durationEl);
+
+  /* ===== EXPOSE FOR QUEUE UI ===== */
+  window.songs = songs;
+  window.loadSong = loadSong;
 
 
 });
