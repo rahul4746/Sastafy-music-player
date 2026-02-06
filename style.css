@@ -246,6 +246,7 @@ body {
 .song-info h4.scroll-text {
   display: inline-block;
   width: max-content;
+  max-width: none;
   padding-right: 16px;
   text-overflow: unset;
   animation: song-marquee 8s linear infinite;
