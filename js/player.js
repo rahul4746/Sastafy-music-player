@@ -93,11 +93,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       miniTitle.textContent = `${song.title} – ${song.artist || "Unknown"}`;
         requestAnimationFrame(() => {
           const parent = miniTitle.parentElement;
-          miniTitle.classList.toggle(
-            "scroll-text",
-            miniTitle.scrollWidth > parent.clientWidth
-          );
+          const overflow = miniTitle.scrollWidth - parent.clientWidth;
+          if (overflow > 0) {
+            miniTitle.style.setProperty("--scroll-distance", `${overflow}px`);
+            miniTitle.classList.add("scroll-text");
+          } else {
+            miniTitle.classList.remove("scroll-text");
+            miniTitle.style.removeProperty("--scroll-distance");
+          }
         });
+
 
 
     }
@@ -177,11 +182,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const titleEl = activeSong.querySelector(".song-info h4");
     if (!titleEl) return;
     titleEl.classList.remove("scroll-text");
+    titleEl.style.removeProperty("--scroll-distance");
     if (activeSong.classList.contains("playing")) {
-      if (titleEl.scrollWidth > titleEl.clientWidth) {
+      const overflow = titleEl.scrollWidth - titleEl.clientWidth;
+      if (overflow > 0) {
+        titleEl.style.setProperty("--scroll-distance", `${overflow}px`);
         titleEl.classList.add("scroll-text");
       }
     }
+
   }
 
   audio.addEventListener("play", () => {
