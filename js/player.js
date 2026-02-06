@@ -404,18 +404,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   function addSongToUI(dbSong) {
     const url = createSongURL(dbSong.blob);
 
+    /* ===== song cover ===== */
+    function getCoverFromTags(tags) {
+      const picture = tags.picture;
+      if (!picture || !picture.data || !picture.data.length) {
+        return DEFAULT_COVER;
+      }
+
+      const byteArray = new Uint8Array(picture.data);
+      const blob = new Blob([byteArray], { type: picture.format || "image/jpeg" });
+      return URL.createObjectURL(blob);
+    }
+
+
     jsmediatags.read(dbSong.blob, {
       onSuccess: tag => {
+        const cover = getCoverFromTags(tag.tags);
+
         songs.push({
           dbId: dbSong.id,
           title: tag.tags.title || dbSong.name.replace(/\.[^/.]+$/, ""),
           artist: tag.tags.artist || "Local File",
           src: url,
-          cover: DEFAULT_COVER
+          cover
         });
         renderPlaylist();
         updateEmptyState(true);
       },
+
       onError: () => {
         songs.push({
           dbId: dbSong.id,
