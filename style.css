@@ -6,6 +6,8 @@
 }
 
 body {
+  width: 100%;
+  overflow-x: hidden;
   background: #0d0d0d;
   color: white;
 }
