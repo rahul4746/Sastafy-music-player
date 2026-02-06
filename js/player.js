@@ -93,9 +93,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       miniTitle.textContent = `${song.title} – ${song.artist || "Unknown"}`;
         requestAnimationFrame(() => {
           const parent = miniTitle.parentElement;
+          const gap = 16;
           const overflow = miniTitle.scrollWidth - parent.clientWidth;
           if (overflow > 0) {
-            miniTitle.style.setProperty("--scroll-distance", `${overflow}px`);
+            miniTitle.style.setProperty("--scroll-distance", `${overflow + gap}px`);
             miniTitle.classList.add("scroll-text");
           } else {
             miniTitle.classList.remove("scroll-text");
@@ -184,9 +185,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     titleEl.classList.remove("scroll-text");
     titleEl.style.removeProperty("--scroll-distance");
     if (activeSong.classList.contains("playing")) {
+      const gap = 16;
       const overflow = titleEl.scrollWidth - titleEl.clientWidth;
       if (overflow > 0) {
-        titleEl.style.setProperty("--scroll-distance", `${overflow}px`);
+        titleEl.style.setProperty("--scroll-distance", `${overflow + gap}px`);
         titleEl.classList.add("scroll-text");
       }
     }
@@ -406,7 +408,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     /* ===== song cover ===== */
     function getCoverFromTags(tags) {
-      const picture = tags.picture;
+      const picture =
+        tags.picture ||
+        (Array.isArray(tags.APIC) && tags.APIC[0]) ||
+        tags.APIC;
       if (!picture || !picture.data || !picture.data.length) {
         return DEFAULT_COVER;
       }
@@ -415,6 +420,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const blob = new Blob([byteArray], { type: picture.format || "image/jpeg" });
       return URL.createObjectURL(blob);
     }
+
 
 
     jsmediatags.read(dbSong.blob, {
