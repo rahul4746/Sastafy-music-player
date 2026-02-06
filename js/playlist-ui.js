@@ -2,7 +2,8 @@ import {
   loadPlaylists,
   createPlaylist,
   addSongToPlaylist,
-  removeSongFromPlaylist
+  removeSongFromPlaylist,
+  deletePlaylist
 } from "./playlist-storage.js";
 
 const playlistsHome = document.getElementById("playlistsHome");
@@ -16,6 +17,16 @@ const playlistBackBtn = document.getElementById("playlistBack");
 const playlistAddSongsBtn = document.getElementById("playlistAddSongs");
 const playlistAddDeviceBtn = document.getElementById("playlistAddDevice");
 const playlistAddPanel = document.getElementById("playlistAddPanel");
+// const playlistAddList = document.getElementById("playlistAddList");
+// const playlistAddClose = document.getElementById("playlistAddClose");
+// const playlistAddCancel = document.getElementById("playlistAddCancel");
+// const playlistAddConfirm = document.getElementById("playlistAddConfirm");
+const playlistDeleteBtn = document.getElementById("playlistDelete");
+const playlistCreatePanel = document.getElementById("playlistCreatePanel");
+const playlistCreateClose = document.getElementById("playlistCreateClose");
+const playlistCreateCancel = document.getElementById("playlistCreateCancel");
+const playlistCreateConfirm = document.getElementById("playlistCreateConfirm");
+const playlistCreateName = document.getElementById("playlistCreateName");
 const playlistAddList = document.getElementById("playlistAddList");
 const playlistAddClose = document.getElementById("playlistAddClose");
 const playlistAddCancel = document.getElementById("playlistAddCancel");
@@ -25,6 +36,16 @@ const fileInput = document.getElementById("fileInput");
 let activePlaylistId = null;
 let pendingPlaylistAdd = null;
 let pendingKnownIds = new Set();
+let lastPlaylistFocus = null;
+let lastAddPanelFocus = null;
+
+if (playlistView?.classList.contains("hidden")) {
+  playlistView.setAttribute("inert", "");
+}
+
+if (playlistAddPanel?.classList.contains("hidden")) {
+  playlistAddPanel.setAttribute("inert", "");
+}
 
 function getGlobalSongs() {
   return Array.isArray(window.songs) ? window.songs : [];
@@ -36,6 +57,16 @@ function findSongById(songId) {
 
 function getSongIndexById(songId) {
   return getGlobalSongs().findIndex(song => String(song.dbId) === String(songId));
+}
+
+function syncPlaylistActiveState() {
+  const currentId = typeof window.getCurrentSongId === "function" ? window.getCurrentSongId() : null;
+  const isPlaying = typeof window.isSongPlaying === "function" ? window.isSongPlaying() : false;
+  document.querySelectorAll(".playlist-song").forEach(row => {
+    const isActive = String(row.dataset.songId) === String(currentId);
+    row.classList.toggle("active", isActive);
+    row.classList.toggle("playing", isActive && isPlaying);
+  });
 }
 
 function renderPlaylistsHome() {
@@ -74,8 +105,11 @@ function openPlaylistView(playlistId) {
   activePlaylistId = playlistId;
   renderPlaylistView();
   if (playlistView) {
+    lastPlaylistFocus = document.activeElement;
     playlistView.classList.remove("hidden");
     playlistView.setAttribute("aria-hidden", "false");
+    playlistView.removeAttribute("inert");
+    playlistBackBtn?.focus();
   }
 }
 
@@ -84,6 +118,12 @@ function closePlaylistView() {
   if (playlistView) {
     playlistView.classList.add("hidden");
     playlistView.setAttribute("aria-hidden", "true");
+    playlistView.setAttribute("inert", "");
+  }
+  if (lastPlaylistFocus instanceof HTMLElement) {
+    lastPlaylistFocus.focus();
+  } else {
+    createPlaylistBtn?.focus();
   }
 }
 
@@ -115,6 +155,9 @@ function renderPlaylistView() {
 
     row.innerHTML = `
       <span class="index">${index + 1}</span>
+      <div class="eq">
+        <span></span><span></span><span></span>
+      </div>
       <img class="playlist-song-cover" src="${song?.cover || "assets/images/default.png"}" onerror="this.src='assets/images/default.png'" />
       <div class="playlist-song-info">
         <h4>${song?.title || "Unavailable song"}</h4>
@@ -145,9 +188,9 @@ function renderPlaylistView() {
     menuBtn.addEventListener("click", event => {
       event.stopPropagation();
       document.querySelectorAll(".playlist-menu").forEach(item => {
-        if (item !== menu) item.style.display = "none";
+        if (item !== menu) item.classList.remove("menu-open");
       });
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
+      menu.classList.toggle("menu-open");
     });
 
     menu.querySelector(".playlist-remove").addEventListener("click", event => {
@@ -156,22 +199,50 @@ function renderPlaylistView() {
       renderPlaylistView();
     });
 
-    playlistViewList.appendChild(row);
+     playlistViewList.appendChild(row);
   });
+
+  syncPlaylistActiveState();
 }
 
 function openAddPanel() {
   if (!playlistAddPanel) return;
+  lastAddPanelFocus = document.activeElement;
   playlistAddPanel.classList.remove("hidden");
   playlistAddPanel.setAttribute("aria-hidden", "false");
+  playlistAddPanel.removeAttribute("inert");
   renderAddList();
+  playlistAddClose?.focus();
 }
 
 function closeAddPanel() {
   if (!playlistAddPanel) return;
   playlistAddPanel.classList.add("hidden");
   playlistAddPanel.setAttribute("aria-hidden", "true");
+  playlistAddPanel.setAttribute("inert", "");
+  if (lastAddPanelFocus instanceof HTMLElement) {
+    lastAddPanelFocus.focus();
+  } else {
+    playlistAddSongsBtn?.focus();
+  }
 }
+
+function openCreatePanel() {
+  if (!playlistCreatePanel) return;
+  playlistCreatePanel.classList.remove("hidden");
+  playlistCreatePanel.setAttribute("aria-hidden", "false");
+  if (playlistCreateName) {
+    playlistCreateName.value = "";
+    playlistCreateName.focus();
+  }
+}
+
+function closeCreatePanel() {
+  if (!playlistCreatePanel) return;
+  playlistCreatePanel.classList.add("hidden");
+  playlistCreatePanel.setAttribute("aria-hidden", "true");
+}
+
 
 function renderAddList() {
   if (!playlistAddList || !activePlaylistId) return;
@@ -222,14 +293,10 @@ function waitForNewSongs(existingIds) {
       }
     }, 200);
   });
+
 }
 
-createPlaylistBtn?.addEventListener("click", () => {
-  const name = prompt("Playlist name");
-  if (!name || !name.trim()) return;
-  createPlaylist(name.trim());
-  renderPlaylistsHome();
-});
+createPlaylistBtn?.addEventListener("click", openCreatePanel);
 
 playlistBackBtn?.addEventListener("click", closePlaylistView);
 
@@ -259,6 +326,40 @@ playlistAddConfirm?.addEventListener("click", () => {
   renderPlaylistView();
 });
 
+playlistDeleteBtn?.addEventListener("click", () => {
+  if (!activePlaylistId) return;
+  const playlist = loadPlaylists().find(item => item.id === activePlaylistId);
+  const name = playlist?.name || "this playlist";
+  const confirmed = window.confirm(`Delete "${name}"? This can't be undone.`);
+  if (!confirmed) return;
+  deletePlaylist(activePlaylistId);
+  closePlaylistView();
+  renderPlaylistsHome();
+});
+
+playlistCreateClose?.addEventListener("click", closeCreatePanel);
+playlistCreateCancel?.addEventListener("click", closeCreatePanel);
+
+playlistCreateConfirm?.addEventListener("click", () => {
+  if (!playlistCreateName) return;
+  const name = playlistCreateName.value.trim();
+  if (!name) {
+    playlistCreateName.focus();
+    return;
+  }
+  createPlaylist(name);
+  closeCreatePanel();
+  renderPlaylistsHome();
+});
+
+playlistCreateName?.addEventListener("keydown", event => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    playlistCreateConfirm?.click();
+  }
+});
+
+
 fileInput?.addEventListener("change", () => {
   if (!pendingPlaylistAdd) return;
   const targetPlaylist = pendingPlaylistAdd;
@@ -274,12 +375,16 @@ fileInput?.addEventListener("change", () => {
 
 document.addEventListener("click", () => {
   document.querySelectorAll(".playlist-menu").forEach(menu => {
-    menu.style.display = "none";
+    menu.classList.remove("menu-open");
   });
 });
 
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") {
+    if (playlistCreatePanel && !playlistCreatePanel.classList.contains("hidden")) {
+      closeCreatePanel();
+      return;
+    }
     if (playlistAddPanel && !playlistAddPanel.classList.contains("hidden")) {
       closeAddPanel();
       return;
