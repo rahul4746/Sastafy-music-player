@@ -223,6 +223,8 @@ body {
 .song-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0; /* 🔑 allows text to shrink properly within flex */
 }
 
 .song-info h4 {
