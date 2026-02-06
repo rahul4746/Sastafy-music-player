@@ -64,8 +64,57 @@
       <p>Tap + to add songs</p>
     </div>
 
-    <!-- PLAYLIST -->
-    <section class="playlist"></section>
+    <!-- PLAYLISTS HOME -->
+    <section id="playlistsHome" class="playlists-home">
+      <div class="section-header">
+        <h2>Playlists</h2>
+        <button id="createPlaylist" class="icon-btn" aria-label="Create playlist">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+      <div id="playlistList" class="playlist-list"></div>
+    </section>
+
+    <!-- PLAYLIST VIEW -->
+<section id="playlistView" class="playlist-view hidden" aria-hidden="true">
+  <div class="playlist-view-header">
+    <button id="playlistBack" class="icon-btn" aria-label="Back">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <div class="playlist-view-meta">
+      <h2 id="playlistViewTitle">Playlist</h2>
+      <span id="playlistViewCount">0 songs</span>
+    </div>
+    <div class="playlist-view-actions">
+      <button id="playlistAddDevice" class="icon-btn" aria-label="Add songs from device">
+        <i class="fa-solid fa-file-arrow-up"></i>
+      </button>
+      <button id="playlistAddSongs" class="icon-btn" aria-label="Add songs to playlist">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </div>
+  </div>
+  <div id="playlistViewList" class="playlist-view-list"></div>
+
+  <div id="playlistAddPanel" class="playlist-add-panel hidden" aria-hidden="true">
+    <div class="playlist-add-content" role="dialog" aria-modal="true" aria-label="Add songs">
+      <div class="playlist-add-header">
+        <h3>Add songs</h3>
+        <button id="playlistAddClose" class="icon-btn" aria-label="Close add songs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="playlistAddList" class="playlist-add-list"></div>
+      <div class="playlist-add-actions">
+        <button id="playlistAddCancel" class="ghost-btn">Cancel</button>
+        <button id="playlistAddConfirm" class="primary-btn">Add Selected</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYLIST -->
+<section class="playlist"></section>
   </div>
 
   <!-- NOW PLAYING MODAL -->
@@ -140,6 +189,7 @@
   <script type="module" src="js/player.js"></script>
   <script type="module" src="js/queue-ui.js"></script>
   <script type="module" src="js/now-playing.js"></script>
+  <script type="module" src="js/playlist-ui.js"></script>
   <script src="js/install.js"></script>
 
   <script>
