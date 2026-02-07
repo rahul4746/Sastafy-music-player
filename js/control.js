@@ -37,7 +37,7 @@ export function updateMediaInfo(song) {
     album: "Sastafy Music Player",
     artwork: [
       {
-        src: song.cover || "images/default.png",
+        src: song.cover || "assets/images/default.png",
         sizes: "512x512",
         type: "image/png"
       }
