@@ -380,7 +380,7 @@ window.addEventListener("resize", updatePlayerBarHeight);
 
       // click to play
       div.addEventListener("click", e => {
-        if (e.target.closest(".menu-btn")) return;
+        if (e.target.closest(".menu-btn") || e.target.closest(".song-menu")) return;
         loadSong(i, true);
       });
 
