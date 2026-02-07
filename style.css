@@ -340,15 +340,34 @@ body {
   text-align: left;
   font-size: 14px;
   cursor: pointer;
-  transition: background 0.15s ease, padding-left 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .playlist-menu button:hover,
 .playlist-menu button:focus-visible {
-  background: #1a1a1a;
-  padding-left: 18px;
+  background: rgba(255,255,255,0.08);
 }
 
+.playlist-menu button:active {
+  background: rgba(255,255,255,0.15);
+  transform: scale(0.98);
+}
+
+.playlist-menu button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.06);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.playlist-menu button:hover::before,
+.playlist-menu button:focus-visible::before {
+  opacity: 1;
+}
 .playlist-menu button i {
   margin-right: 8px;
 }
