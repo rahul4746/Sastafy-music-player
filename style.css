@@ -238,6 +238,7 @@ body {
 .playlist-view-list {
   flex: 1;
   overflow-y: auto;
+  overflow-x: visible;
   padding-right: 4px;
   padding-bottom: 16px;
 }
@@ -252,6 +253,10 @@ body {
   cursor: pointer;
   z-index: 0;
   overflow: visible;
+}
+
+.playlist-song.menu-active {
+  z-index: 5;
 }
 
 .playlist-song:hover {
@@ -297,23 +302,24 @@ body {
 .playlist-menu {
   position: absolute;
   right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 100%;
+  transform: translateY(-6px);
   background: #111;
   border-radius: 8px;
   box-shadow: 0 8px 20px rgba(0,0,0,.4);
   overflow: hidden;
+  display: block;
   opacity: 0;
-  transform: translateY(-50%) translateY(-6px) scale(0.98);
+  transform: translateY(-6px) scale(0.98);
   pointer-events: none;
-  z-index: 10;
+  z-index: 200;
   transition: opacity 0.18s ease, transform 0.18s ease;
   min-width: 180px;
 }
 
 .playlist-menu.menu-open {
   opacity: 1;
-  transform: translateY(-50%) translateY(0) scale(1);
+  transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
@@ -328,6 +334,12 @@ body {
   font-size: 14px;
   cursor: pointer;
   transition: background 0.15s ease, padding-left 0.15s ease;
+}
+
+.playlist-menu button:hover,
+.playlist-menu button:focus-visible {
+  background: #1a1a1a;
+  padding-left: 18px;
 }
 
 .playlist-menu button i {
@@ -562,11 +574,6 @@ body {
 
 
 /* ===== PLAYLIST COVER (SMALL, LEFT OF TITLE) ===== */
-.song {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
 
 .song-cover {
   width: 48px;
@@ -614,15 +621,7 @@ body {
   100% { transform: translateX(calc(-1 * var(--scroll-distance))); }
 }
 
-
-
 /* ===== NOW PLAYING ANIMATION ===== */
-
-.song {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
 
 .eq {
   display: none;
@@ -742,16 +741,6 @@ body {
   color: #a7a7a7;
   font-size: 14px;
 }
-.playlist-view {
-  position: fixed;
-  inset: 0 0 var(--player-bar-height, 140px) 0;
-  background: #0e0e0e;
-  z-index: 90;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 20px 20px;
-  overflow: hidden;
-}
 
 .playlist-view-header {
   display: flex;
@@ -783,19 +772,8 @@ body {
 .playlist-view-list {
   flex: 1;
   overflow-y: auto;
+  overflow-x: visible;
   padding-right: 4px;
-}
-
-.playlist-song {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  position: relative;
-  cursor: pointer;
-  z-index: 0;
-  overflow: visible;
 }
 
 .playlist-song:hover {
@@ -809,21 +787,11 @@ body {
 .playlist-view-list {
   flex: 1;
   overflow-y: auto;
+  overflow-x: visible;
   padding-right: 4px;
   padding-bottom: 16px;
 }
 
-.playlist-song {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  position: relative;
-  cursor: pointer;
-  z-index: 0;
-  overflow: visible;
-}
 .playlist-song:hover {
   background: #1a1a1a;
 }
@@ -872,19 +840,6 @@ body {
   border-radius: 50%;
 }
 
-.playlist-menu {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #111;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,.4);
-  overflow: hidden;
-  display: block;
-  z-index: 10;
-}
-
 .playlist-menu button {
   display: block;
   width: 100%;
@@ -895,35 +850,6 @@ body {
   text-align: left;
   font-size: 14px;
   cursor: pointer;
-}
-
-.playlist-add-panel {
-  position: fixed;
-  inset: 0 0 120px 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-
-.playlist-menu {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #111;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,.4);
-  overflow: hidden;
-  display: block;
-  opacity: 0;
-  transform: translateY(-50%) translateY(-6px) scale(0.98);
-  pointer-events: none;
-  z-index: 120;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  min-width: 180px;
 }
 
 .playlist-menu.menu-open {
@@ -947,17 +873,6 @@ body {
 
 .playlist-menu button i {
   margin-right: 8px;
-}
-
-.playlist-add-panel {
-  position: fixed;
-  inset: 0 0 var(--player-bar-height, 140px) 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  z-index: 95;
 }
 
 .playlist-add-content {
@@ -1089,15 +1004,6 @@ body {
   font-weight: 600;
 }
 
-.song {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
 .song:hover {
   background: #1a1a1a;
 }
@@ -1120,27 +1026,6 @@ body {
 
 
 /* ===== NOW PLAYING ANIMATION ===== */
-
-.song {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.eq {
-  display: none;
-  width: 16px;
-  height: 14px;
-  align-items: flex-end;
-  gap: 2px;
-}
-.eq {
-  display: none;
-  width: 16px;
-  height: 14px;
-  align-items: flex-end;
-  gap: 2px;
-}
 
 .eq span {
   width: 3px;
@@ -1184,39 +1069,11 @@ body {
 .eq span:nth-child(2) { animation-delay: .2s; }
 .eq span:nth-child(3) { animation-delay: .4s; }
 
-@keyframes equalizer {
-  0% { height: 30%; }
-  50% { height: 100%; }
-  100% { height: 30%; }
-}
-
-/* ===== MINI NOW PLAYING ===== */
-.mini-now-playing {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #ddd;
-  margin-bottom: 6px;
-  padding: 0 12px; /* 👈 pulls content inward */
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-  border-radius: 10px;
-}
-
-
 .mini-info {
   flex: 1;
   overflow: hidden;
 }
 
-#miniTitle {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: unset;
-  display: block;
-  max-width: 100%;
-}
 #miniTitle.scroll-text {
   display: inline-block;
   width: max-content;
@@ -1225,26 +1082,20 @@ body {
   animation: mini-marquee 8s linear infinite;
 }
 
-@keyframes mini-marquee {
-  0% { transform: translateX(0); }
-  15% { transform: translateX(0); }
-  100% { transform: translateX(calc(-1 * var(--scroll-distance))); }
-}
 .queue-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   color: #aaa;
   font-size: 16px;
   margin-left: 6px;
-  transition: transform 0.15s ease, color 0.15s ease;
-}
-.queue-btn {
-  background: none;
-  border: none;
-  color: #aaa;
-  font-size: 16px;
-  margin-left: 6px;
-  transition: transform 0.15s ease, color 0.15s ease;
+  padding: 8px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 999px;
+  transition: transform 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 
 .queue-btn--active {
@@ -1280,12 +1131,6 @@ body {
 }
 
 /* ===== 3 DOT MENU ===== */
-
-.song {
-  position: relative;
-  z-index: 0;
-  overflow: visible;
-}
 
 .song .menu-btn {
   border: none;
