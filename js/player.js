@@ -407,9 +407,13 @@ window.addEventListener("resize", updatePlayerBarHeight);
         e.preventDefault();
         e.stopPropagation();
         document.querySelectorAll(".song-menu").forEach(m => {
-          if (m !== menu) m.classList.remove("menu-open");
+          if (m !== menu) {
+            m.classList.remove("menu-open");
+            m.closest(".song")?.classList.remove("menu-active");
+          }
         });
-        menu.classList.toggle("menu-open");
+        const isOpen = menu.classList.toggle("menu-open");
+        div.classList.toggle("menu-active", isOpen);
       });
 
       menu.querySelector(".play-next").addEventListener("click", e => {
@@ -417,6 +421,7 @@ window.addEventListener("resize", updatePlayerBarHeight);
         e.stopPropagation();
         queuePlayNext(i);
         menu.classList.remove("menu-open");
+        div.classList.remove("menu-active");
       });
 
       menu.querySelector(".add-queue").addEventListener("click", e => {
@@ -424,6 +429,7 @@ window.addEventListener("resize", updatePlayerBarHeight);
         e.stopPropagation();
         addToQueue(i);
         menu.classList.remove("menu-open");
+        div.classList.remove("menu-active");
       });
 
       menu.querySelector(".remove-song").addEventListener("click", async e => {
@@ -447,6 +453,7 @@ window.addEventListener("resize", updatePlayerBarHeight);
     }
     document.querySelectorAll(".song-menu").forEach(m => {
       m.classList.remove("menu-open");
+      m.closest(".song")?.classList.remove("menu-active");
     });
   });
 
