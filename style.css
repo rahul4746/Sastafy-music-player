@@ -483,6 +483,10 @@ body {
   overflow: visible;
 }
 
+.song.menu-active {
+  z-index: 5;
+}
+
 .song:hover {
   background: #1a1a1a;
 }
