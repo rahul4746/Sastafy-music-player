@@ -175,7 +175,7 @@ function renderPlaylistView() {
     `;
 
     row.addEventListener("click", event => {
-      if (event.target.closest(".playlist-menu-btn")) return;
+      if (event.target.closest(".playlist-menu-btn") || event.target.closest(".playlist-menu")) return;
       const songIndex = getSongIndexById(songId);
       if (songIndex < 0) return;
       if (typeof window.loadSong === "function") {
