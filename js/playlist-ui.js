@@ -5,6 +5,7 @@ import {
   removeSongFromPlaylist,
   deletePlaylist
 } from "./playlist-storage.js";
+import { addToQueue, playNext as queuePlayNext } from "./queue.js";
 
 const playlistsHome = document.getElementById("playlistsHome");
 const playlistList = document.getElementById("playlistList");
@@ -167,6 +168,14 @@ function renderPlaylistView() {
         <i class="fa-solid fa-ellipsis-vertical"></i>
       </button>
       <div class="playlist-menu">
+        <button class="playlist-play-next">
+          <i class="fa-solid fa-forward-step"></i>
+          Play next
+        </button>
+        <button class="playlist-add-queue">
+          <i class="fa-solid fa-list-ul"></i>
+          Add to queue
+        </button>
         <button class="playlist-remove">
           <i class="fa-solid fa-minus"></i>
           Remove from playlist
@@ -185,12 +194,43 @@ function renderPlaylistView() {
 
     const menuBtn = row.querySelector(".playlist-menu-btn");
     const menu = row.querySelector(".playlist-menu");
-    menuBtn.addEventListener("click", event => {
+     menuBtn.addEventListener("click", event => {
       event.stopPropagation();
       document.querySelectorAll(".playlist-menu").forEach(item => {
-        if (item !== menu) item.classList.remove("menu-open");
+        if (item !== menu) {
+          item.classList.remove("menu-open");
+          item.closest(".playlist-song")?.classList.remove("menu-active");
+        }
       });
-      menu.classList.toggle("menu-open");
+      const isOpen = menu.classList.toggle("menu-open");
+      row.classList.toggle("menu-active", isOpen);
+    });
+
+
+    menu.querySelector(".playlist-play-next").addEventListener("click", event => {
+      event.stopPropagation();
+      const songIndex = getSongIndexById(songId);
+      if (songIndex < 0) {
+        menu.classList.remove("menu-open");
+        row.classList.remove("menu-active");
+        return;
+      }
+      queuePlayNext(songIndex);
+      menu.classList.remove("menu-open");
+      row.classList.remove("menu-active");
+    });
+
+    menu.querySelector(".playlist-add-queue").addEventListener("click", event => {
+      event.stopPropagation();
+      const songIndex = getSongIndexById(songId);
+      if (songIndex < 0) {
+        menu.classList.remove("menu-open");
+        row.classList.remove("menu-active");
+        return;
+      }
+      addToQueue(songIndex);
+      menu.classList.remove("menu-open");
+      row.classList.remove("menu-active");
     });
 
     menu.querySelector(".playlist-remove").addEventListener("click", event => {
@@ -376,6 +416,7 @@ fileInput?.addEventListener("change", () => {
 document.addEventListener("click", () => {
   document.querySelectorAll(".playlist-menu").forEach(menu => {
     menu.classList.remove("menu-open");
+    menu.closest(".playlist-song")?.classList.remove("menu-active");
   });
 });
 
