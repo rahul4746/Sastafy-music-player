@@ -379,8 +379,22 @@ window.addEventListener("resize", updatePlayerBarHeight);
       `;
 
       // click to play
+      let ignoreClick = false;
+
+      div.addEventListener("touchend", e => {
+        if (e.target.closest(".menu-btn") || e.target.closest(".song-menu")) return;
+        e.preventDefault();
+        ignoreClick = true;
+        loadSong(i, true, "manual");
+      });
+
+      // click to play
       div.addEventListener("click", e => {
         if (e.target.closest(".menu-btn") || e.target.closest(".song-menu")) return;
+        if (ignoreClick) {
+          ignoreClick = false;
+          return;
+        }
         loadSong(i, true, "manual");
       });
 
