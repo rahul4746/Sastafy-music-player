@@ -573,32 +573,36 @@ window.addEventListener("resize", updatePlayerBarHeight);
 
 
 
-    jsmediatags.read(dbSong.blob, {
-      onSuccess: tag => {
-        const cover = getCoverFromTags(tag.tags);
+    return new Promise(resolve => {
+      jsmediatags.read(dbSong.blob, {
+        onSuccess: tag => {
+          const cover = getCoverFromTags(tag.tags);
 
-        songs.push({
-          dbId: dbSong.id,
-          title: tag.tags.title || dbSong.name.replace(/\.[^/.]+$/, ""),
-          artist: tag.tags.artist || "Local File",
-          src: url,
-          cover
-        });
-        renderPlaylist();
-        updateEmptyState(true);
-      },
+          songs.push({
+            dbId: dbSong.id,
+            title: tag.tags.title || dbSong.name.replace(/\.[^/.]+$/, ""),
+            artist: tag.tags.artist || "Local File",
+            src: url,
+            cover
+          });
+          renderPlaylist();
+          updateEmptyState(true);
+          resolve();
+        },
 
-      onError: () => {
-        songs.push({
-          dbId: dbSong.id,
-          title: dbSong.name.replace(/\.[^/.]+$/, ""),
-          artist: "Local File",
-          src: url,
-          cover: DEFAULT_COVER
-        });
-        renderPlaylist();
-        updateEmptyState(true);
-      }
+        onError: () => {
+          songs.push({
+            dbId: dbSong.id,
+            title: dbSong.name.replace(/\.[^/.]+$/, ""),
+            artist: "Local File",
+            src: url,
+            cover: DEFAULT_COVER
+          });
+          renderPlaylist();
+          updateEmptyState(true);
+          resolve();
+        }
+      });
     });
   }
 
@@ -611,7 +615,7 @@ window.addEventListener("resize", updatePlayerBarHeight);
       return;
     }
 
-    cachedSongs.forEach(addSongToUI);
+    await Promise.all(cachedSongs.map(addSongToUI));
 
     const resume = JSON.parse(localStorage.getItem(RESUME_KEY));
     const index = resume?.index ?? 0;
