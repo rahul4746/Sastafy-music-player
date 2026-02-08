@@ -1,10 +1,10 @@
 /* ===============================
-   Sastafy Music Player - Storage
+   BeatFlow Music Player - Storage
    IndexedDB based (PC + Mobile)
    =============================== */
 
 let db = null;
-const DB_NAME = "sastafyDB";
+const DB_NAME = "beatflowDB";
 const DB_VERSION = 1;
 const STORE_NAME = "songs";
 
