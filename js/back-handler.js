@@ -3,6 +3,22 @@ document.addEventListener("DOMContentLoaded", () => {
     history.pushState({ appRoot: true }, "", window.location.href);
   };
 
+  const toast = document.createElement("div");
+  toast.className = "back-toast";
+  toast.setAttribute("role", "status");
+  toast.setAttribute("aria-live", "polite");
+  toast.textContent = "Use Home or Recents to keep music playing in background.";
+  document.body.appendChild(toast);
+
+  let toastTimeout;
+  const showToast = () => {
+    toast.classList.add("show");
+    window.clearTimeout(toastTimeout);
+    toastTimeout = window.setTimeout(() => {
+      toast.classList.remove("show");
+    }, 2000);
+  };
+
   if (!history.state || !history.state.appRoot) {
     ensureAppHistory();
   }
@@ -60,6 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (handledOverlay) {
       window.setTimeout(ensureAppHistory, 60);
     } else {
+      if (typeof window.isSongPlaying === "function" && window.isSongPlaying()) {
+        showToast();
+      }
       ensureAppHistory();
     }
   });
