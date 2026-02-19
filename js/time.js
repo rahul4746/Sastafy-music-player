@@ -2,6 +2,7 @@
 // Handles audio time display (current / duration)
 
 export function initTimeDisplay(audio, currentEl, durationEl) {
+  const progress = document.getElementById("progress");
 
   function formatTime(seconds) {
     if (isNaN(seconds)) return "00:00";
@@ -29,4 +30,16 @@ export function initTimeDisplay(audio, currentEl, durationEl) {
     if (currentEl) currentEl.textContent = "00:00";
     if (durationEl) durationEl.textContent = "00:00";
   });
+
+  // Click-to-seek on progress bar
+  if (progress) {
+    progress.addEventListener("click", (e) => {
+      if (!audio.duration) return;
+      const rect = progress.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      const newTime = Math.max(0, Math.min(percent * audio.duration, audio.duration));
+      audio.currentTime = newTime;
+      progress.value = (newTime / audio.duration) * 100;
+    });
+  }
 }

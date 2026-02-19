@@ -3,25 +3,36 @@
    Service Worker
    =============================== */
 
-const CACHE_NAME = "beatflow-v1.12"; // ⬅️ bump version to force update
+const CACHE_NAME = "beatflow-v2.1"; // ⬅️ bump version to force update
 
 const FILES_TO_CACHE = [
   "./",                       // root
   "./index.html",
   "./manifest.json",
 
-  // JS
+  // JS - ALL MODULES
   "./js/player.js",
   "./js/storage.js",
+  "./js/control.js",
+  "./js/time.js",
+  "./js/queue.js",
+  "./js/queue-ui.js",
+  "./js/now-playing.js",
+  "./js/playlist-ui.js",
+  "./js/playlist-storage.js",
+  "./js/playlist-song-panel.js",
+  "./js/back-handler.js",
+  "./js/resume.js",
+  "./js/install.js",
 
   // CSS
   "./style.css",
 
-  // Images (IMPORTANT)
+  // Images
   "./assets/images/default.png",
 
   // Icons (PWA)
-  ".icons/app.png"
+  "./icons/app.png"
 ];
 
 /* ---------- INSTALL ---------- */
@@ -83,8 +94,3 @@ self.addEventListener("fetch", event => {
     })
   );
 });
-
-
-
-
-

@@ -1,23 +1,25 @@
-const RESUME_KEY = "beatflow-resume";
+const RESUME_KEY = "beatflow_resume";
 
-/* Save current song + time */
-function saveResumeState(index, time) {
+/* Save current song + time (by songId) */
+export function saveResumeState(songId, time) {
+  if (!songId) return;
   localStorage.setItem(
     RESUME_KEY,
-    JSON.stringify({ index, time })
+    JSON.stringify({ songId: String(songId), time })
   );
 }
 
 /* Load resume state */
-function loadResumeState() {
+export function loadResumeState() {
   try {
-    return JSON.parse(localStorage.getItem(RESUME_KEY));
+    const data = localStorage.getItem(RESUME_KEY);
+    return data ? JSON.parse(data) : null;
   } catch {
     return null;
   }
 }
 
 /* Clear resume state (optional) */
-function clearResumeState() {
+export function clearResumeState() {
   localStorage.removeItem(RESUME_KEY);
 }

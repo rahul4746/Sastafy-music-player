@@ -29,6 +29,10 @@
       <div class="brand">
         <h1>BeatFlow</h1>
         <span>Your Music</span>
+        <div class="search-container">
+          <input type="text" id="searchInput" placeholder="Search songs..." />
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        </div>
       </div>
 
       <button id="installBtn" class="fab">
@@ -196,7 +200,7 @@
       <div class="playlist-delete-body">
         <h3 id="playlistDeleteTitle">Delete playlist?</h3>
         <p id="playlistDeleteDesc">
-          You're about to remove <span id="playlistDeleteName">this playlist</span> forever. This can’t be undone.
+          You're about to remove <span id="playlistDeleteName">this playlist</span> forever. This can't be undone.
         </p>
       </div>
       <div class="playlist-delete-actions">
@@ -283,6 +287,19 @@
         <button id="repeat"><i class="fa-solid fa-repeat"></i></button>
       </div>
     </div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-spinner"></div>
+    <p id="loadingText">Loading...</p>
+  </div>
+
+  <!-- ERROR TOAST -->
+  <div id="errorToast" class="error-toast hidden">
+    <i class="fa-solid fa-exclamation-circle"></i>
+    <span id="errorMessage"></span>
+    <button id="errorClose" class="toast-close">&times;</button>
   </div>
 
   <script src="js/storage.js"></script>

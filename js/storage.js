@@ -7,6 +7,7 @@ let db = null;
 const DB_NAME = "beatflowDB";
 const DB_VERSION = 1;
 const STORE_NAME = "songs";
+const blobURLs = new Set();
 
 /* ---------- Open / Init DB ---------- */
 function openDB() {
@@ -39,10 +40,10 @@ function openDB() {
 const dbReady = openDB();
 
 /* ---------- Save Song ---------- */
-function saveSongToDB(file) {
-  return new Promise(async (resolve, reject) => {
-    await dbReady;
+async function saveSongToDB(file) {
+  await dbReady;
 
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
     reader.onload = () => {
@@ -70,10 +71,10 @@ function saveSongToDB(file) {
 }
 
 /* ---------- Get All Songs ---------- */
-function getAllSongsFromDB() {
-  return new Promise(async (resolve, reject) => {
-    await dbReady;
+async function getAllSongsFromDB() {
+  await dbReady;
 
+  return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, "readonly");
     const store = tx.objectStore(STORE_NAME);
     const request = store.getAll();
@@ -84,10 +85,10 @@ function getAllSongsFromDB() {
 }
 
 /* ---------- Delete One Song ---------- */
-function deleteSongFromDB(id) {
-  return new Promise(async (resolve, reject) => {
-    await dbReady;
+async function deleteSongFromDB(id) {
+  await dbReady;
 
+  return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
 
@@ -99,10 +100,10 @@ function deleteSongFromDB(id) {
 }
 
 /* ---------- Clear All Songs ---------- */
-function clearAllSongsFromDB() {
-  return new Promise(async (resolve, reject) => {
-    await dbReady;
+async function clearAllSongsFromDB() {
+  await dbReady;
 
+  return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
 
@@ -115,5 +116,21 @@ function clearAllSongsFromDB() {
 
 /* ---------- Utility: Blob to URL ---------- */
 function createSongURL(blob) {
-  return URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
+  blobURLs.add(url);
+  return url;
+}
+
+/* ---------- Revoke Blob URL ---------- */
+function revokeSongURL(url) {
+  if (blobURLs.has(url)) {
+    URL.revokeObjectURL(url);
+    blobURLs.delete(url);
+  }
+}
+
+/* ---------- Clear All Blob URLs ---------- */
+function clearAllBlobURLs() {
+  blobURLs.forEach(url => URL.revokeObjectURL(url));
+  blobURLs.clear();
 }
