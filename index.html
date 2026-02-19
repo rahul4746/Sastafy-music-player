@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="icon" href="icons/app.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <title>BeatFlow</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#22c55e">
+
+  <!-- Media tags -->
+  <script src="https://unpkg.com/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="top-bar">
+      <div class="brand">
+        <h1>BeatFlow</h1>
+        <span>Your Music</span>
+        <div class="search-container">
+          <input type="text" id="searchInput" placeholder="Search songs..." />
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        </div>
+      </div>
+
+      <button id="installBtn" class="fab">
+        <i class="fa-solid fa-down-long"></i>
+      </button>
+
+      <button id="addSongs" class="add-btn">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </header>
+
+    <!-- QUEUE PANEL -->
+    <div id="queuePanel" class="queue-panel hidden">
+      <div class="queue-header">
+        <div>
+          <h3>Next in queue</h3>
+        </div>
+        <button id="clearQueue">Clear</button>
+      </div>
+
+      <div id="queueList" class="queue-list">
+        <!-- queued songs will render here -->
+      </div>
+    </div>
+
+    <!-- QUEUE BACKDROP -->
+    <div id="queueBackdrop" class="queue-backdrop hidden"></div>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState">
+      <i class="fa-brands fa-spotify spotify-icon"></i>
+      <h2>No songs added</h2>
+      <p>Tap + to add songs</p>
+    </div>
+
+    <!-- PLAYLISTS HOME -->
+    <section id="playlistsHome" class="playlists-home">
+      <div class="section-header">
+        <h2>Playlists</h2>
+        <button id="createPlaylist" class="icon-btn" aria-label="Create playlist">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+      <div id="playlistList" class="playlist-list"></div>
+    </section>
+
+    <!-- PLAYLIST VIEW -->
+<section id="playlistView" class="playlist-view hidden" aria-hidden="true">
+  <div class="playlist-view-header">
+    <button id="playlistBack" class="icon-btn" aria-label="Back">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <div class="playlist-view-meta">
+      <h2 id="playlistViewTitle">Playlist</h2>
+      <span id="playlistViewCount">0 songs</span>
+    </div>
+     <div class="playlist-view-actions">
+      <button id="playlistAddDevice" class="icon-btn" aria-label="Add songs from device">
+        <i class="fa-solid fa-file-arrow-up"></i>
+      </button>
+      <button id="playlistDelete" class="icon-btn" aria-label="Delete playlist">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+      <button id="playlistAddSongs" class="icon-btn" aria-label="Add songs to playlist">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </div>
+  </div>
+  <div id="playlistViewList" class="playlist-view-list"></div>
+
+  <div id="playlistAddPanel" class="playlist-add-panel hidden" aria-hidden="true">
+    <div class="playlist-add-content" role="dialog" aria-modal="true" aria-label="Add songs">
+      <div class="playlist-add-header">
+        <h3>Add songs</h3>
+        <button id="playlistAddClose" class="icon-btn" aria-label="Close add songs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="playlistAddList" class="playlist-add-list"></div>
+      <div class="playlist-add-actions">
+        <button id="playlistAddCancel" class="ghost-btn">
+          <i class="fa-solid fa-xmark"></i>
+          Cancel
+        </button>
+        <button id="playlistAddConfirm" class="primary-btn">
+          <i class="fa-solid fa-check"></i>
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+  <div id="songPlaylistPanel" class="playlist-add-panel hidden" aria-hidden="true">
+    <div class="playlist-add-content song-playlist-content" role="dialog" aria-modal="true" aria-label="Add to playlists">
+      <div class="playlist-add-header">
+        <h3>Add to playlists</h3>
+        <button id="songPlaylistClose" class="icon-btn" aria-label="Close add to playlists">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="song-playlist-meta">
+        <span class="song-playlist-label">Choose playlists for</span>
+        <span id="songPlaylistName" class="song-playlist-name">this song</span>
+      </div>
+      <div id="songPlaylistList" class="playlist-add-list"></div>
+      <div class="playlist-add-actions">
+        <button id="songPlaylistCancel" class="ghost-btn">
+          <i class="fa-solid fa-xmark"></i>
+          Cancel
+        </button>
+        <button id="songPlaylistConfirm" class="primary-btn">
+          <i class="fa-solid fa-check"></i>
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+<!-- PLAYLIST -->
+<section class="playlist"></section>
+  </div>
+
+  <div id="playlistCreatePanel" class="playlist-add-panel hidden" aria-hidden="true">
+    <div class="playlist-add-content playlist-create-content" role="dialog" aria-modal="true" aria-label="Create playlist">
+      <div class="playlist-add-header">
+        <h3>Create playlist</h3>
+        <button id="playlistCreateClose" class="icon-btn" aria-label="Close create playlist">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="playlist-create-body">
+        <label class="playlist-create-label" for="playlistCreateName">Playlist name</label>
+        <div class="playlist-create-field">
+          <i class="fa-solid fa-list-music"></i>
+          <input id="playlistCreateName" type="text" placeholder="My favorites" maxlength="60" />
+        </div>
+        <p class="playlist-create-hint">Tip: Keep it short and memorable.</p>
+      </div>
+      <div class="playlist-add-actions">
+        <button id="playlistCreateCancel" class="ghost-btn">
+          <i class="fa-solid fa-xmark"></i>
+          Cancel
+        </button>
+        <button id="playlistCreateConfirm" class="primary-btn">
+          <i class="fa-solid fa-check"></i>
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="playlistDeletePanel" class="playlist-delete-panel hidden" aria-hidden="true">
+    <div class="playlist-delete-backdrop" data-close></div>
+    <div class="playlist-delete-content" role="dialog" aria-modal="true" aria-labelledby="playlistDeleteTitle" aria-describedby="playlistDeleteDesc">
+      <div class="playlist-delete-header">
+        <span class="playlist-delete-icon">
+          <i class="fa-solid fa-trash-can"></i>
+        </span>
+        <button id="playlistDeleteClose" class="icon-btn" aria-label="Close delete playlist">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="playlist-delete-body">
+        <h3 id="playlistDeleteTitle">Delete playlist?</h3>
+        <p id="playlistDeleteDesc">
+          You're about to remove <span id="playlistDeleteName">this playlist</span> forever. This can’t be undone.
+        </p>
+      </div>
+      <div class="playlist-delete-actions">
+        <button id="playlistDeleteCancel" class="ghost-btn">
+          <i class="fa-solid fa-xmark"></i>
+          Keep
+        </button>
+        <button id="playlistDeleteConfirm" class="danger-btn">
+          <i class="fa-solid fa-trash"></i>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOW PLAYING MODAL -->
+  <div id="nowPlayingModal" class="now-playing-modal hidden" aria-hidden="true">
+  <div class="now-playing-backdrop" data-close></div>
+  <div class="now-playing-sheet" role="dialog" aria-modal="true" aria-label="Now playing">
+    <div class="now-playing-header">
+      <span>Now Playing</span>
+      <div class="now-playing-header-actions">
+        <button id="queueBtnNowPlaying" class="queue-btn queue-btn--active" type="button" aria-label="Open queue">
+          <i class="fa-solid fa-list"></i>
+        </button>
+        <button class="now-playing-close" type="button" aria-label="Close">
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+      </div>
+    </div>
+
+      <div class="now-playing-cover">
+        <img id="cover" src="assets/images/default.png" alt="Album art">
+      </div>
+
+      <div class="now-playing-meta">
+        <h2 id="title">No song playing</h2>
+        <p id="artist">Tap + to add songs</p>
+      </div>
+
+      <div class="now-playing-controls-slot"></div>
+    </div>
+  </div>
+
+  <!-- PLAYER BAR -->
+  <div class="player-bar">
+
+    <!-- MINI NOW PLAYING -->
+    <div class="mini-now-playing">
+      <div class="mini-info">
+        <span id="miniTitle">No song playing</span>
+      </div>
+
+
+      <!-- FIX: removed disabled so JS click works -->
+      <button id="queueBtn" class="queue-btn">
+        <i class="fa-solid fa-list"></i>
+      </button>
+    </div>
+
+    <input
+      type="file"
+      id="fileInput"
+      accept=".mp3,audio/*"
+      multiple
+      hidden
+    />
+
+    <div class="player-controls">
+      <!-- PROGRESS BAR -->
+      <input type="range" id="progress" value="0">
+
+      <!-- TIME DISPLAY -->
+      <div class="time-row">
+        <span id="currentTime">00:00</span>
+        <span id="duration">00:00</span>
+      </div>
+
+      <div class="controls">
+        <button id="shuffle"><i class="fa-solid fa-shuffle"></i></button>
+        <button id="prev"><i class="fa-solid fa-backward"></i></button>
+        <button id="play"><i class="fa-solid fa-play"></i></button>
+        <button id="next"><i class="fa-solid fa-forward"></i></button>
+        <button id="repeat"><i class="fa-solid fa-repeat"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-spinner"></div>
+    <p id="loadingText">Loading...</p>
+  </div>
+
+  <!-- ERROR TOAST -->
+  <div id="errorToast" class="error-toast hidden">
+    <i class="fa-solid fa-exclamation-circle"></i>
+    <span id="errorMessage"></span>
+    <button id="errorClose" class="toast-close">&times;</button>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script type="module" src="js/player.js"></script>
+  <script type="module" src="js/queue-ui.js"></script>
+  <script type="module" src="js/now-playing.js"></script>
+  <script type="module" src="js/playlist-ui.js"></script>
+  <script type="module" src="js/back-handler.js"></script>
+  <script src="js/install.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js");
+    }
+  </script>
+
+</body>
+</html>
