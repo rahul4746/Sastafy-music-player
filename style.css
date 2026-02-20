@@ -882,6 +882,35 @@ body {
   transition: transform 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 
+.like-btn,
+.playlist-like-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 18px;
+  padding: 6px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.1s ease, background 0.15s ease;
+}
+
+.like-btn:hover,
+.playlist-like-btn:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.like-btn:active,
+.playlist-like-btn:active {
+  transform: scale(0.9);
+}
+
+.like-btn.active,
+.playlist-like-btn.active {
+  color: #1db954;
+}
+
 .queue-btn--active:hover {
   color: #1db954;
 }
@@ -1367,5 +1396,4 @@ button {
   background: rgba(29, 185, 84, 0.1);
   border: 2px dashed #1db954;
 }
-
 

@@ -7,8 +7,8 @@ import {
   getNextFromQueue
 } from "./queue.js";
 import { openSongPlaylistPanel } from "./playlist-song-panel.js";
+import { removeSongFromAllPlaylists, isLiked, addLike, removeLike } from "./playlist-storage.js";
 import { loadResumeState, saveResumeState } from "./resume.js";
-import { removeSongFromAllPlaylists } from "./playlist-storage.js";
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const addSongsBtn = document.getElementById("addSongs");
   const miniTitle = document.getElementById("miniTitle");
   const queueBtn = document.getElementById("queueBtn");
+  const nowPlayingLikeBtn = document.getElementById("nowPlayingLike");
 
   /* ===== TIME DISPLAY ===== */
   const currentTimeEl = document.getElementById("currentTime");
@@ -207,6 +208,14 @@ window.addEventListener("resize", updatePlayerBarHeight);
 
 
 
+    }
+    if (nowPlayingLikeBtn) {
+      const liked = isLiked(song.dbId);
+      nowPlayingLikeBtn.classList.toggle("active", liked);
+      const icon = nowPlayingLikeBtn.querySelector("i");
+      if (icon) {
+        icon.className = liked ? "fa-solid fa-heart" : "fa-regular fa-heart";
+      }
     }
 
     if (queueBtn) {
@@ -490,6 +499,9 @@ window.addEventListener("resize", updatePlayerBarHeight);
         </div>
 
         <div class="song-actions">
+          <button class="like-btn" type="button" aria-label="Like">
+            <i class="${isLiked(song.dbId) ? "fa-solid fa-heart" : "fa-regular fa-heart"}"></i>
+          </button>
           <button class="add-to-playlist-btn" type="button" aria-label="Add to playlists">
             <i class="fa-regular fa-square-plus"></i>
           </button>
@@ -557,16 +569,44 @@ window.addEventListener("resize", updatePlayerBarHeight);
 
       // menu logic
       const addToPlaylistBtn = div.querySelector(".add-to-playlist-btn");
+      const likeBtn = div.querySelector(".like-btn");
       const menuBtn = div.querySelector(".menu-btn");
       const menu = div.querySelector(".song-menu");
 
-      addToPlaylistBtn.addEventListener("click", e => {
+      likeBtn?.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const liked = isLiked(song.dbId);
+        if (liked) {
+          removeLike(song.dbId);
+        } else {
+          addLike(song.dbId);
+        }
+        const icon = likeBtn.querySelector("i");
+        if (icon) {
+          icon.className = !liked ? "fa-solid fa-heart" : "fa-regular fa-heart";
+        }
+        likeBtn.classList.toggle("active", !liked);
+        if (typeof document !== "undefined") {
+          document.dispatchEvent(new CustomEvent("playlists-updated"));
+        }
+        const current = songs[currentIndex];
+        if (nowPlayingLikeBtn && current && current.dbId === song.dbId) {
+          nowPlayingLikeBtn.classList.toggle("active", !liked);
+          const nIcon = nowPlayingLikeBtn.querySelector("i");
+          if (nIcon) {
+            nIcon.className = !liked ? "fa-solid fa-heart" : "fa-regular fa-heart";
+          }
+        }
+      });
+
+      addToPlaylistBtn?.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
         openSongPlaylistPanel(song.dbId, song.title);
       });
 
-      menuBtn.addEventListener("click", e => {
+      menuBtn?.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
         document.querySelectorAll(".song-menu").forEach(m => {
@@ -575,27 +615,29 @@ window.addEventListener("resize", updatePlayerBarHeight);
             m.closest(".song")?.classList.remove("menu-active");
           }
         });
-        const isOpen = menu.classList.toggle("menu-open");
-        div.classList.toggle("menu-active", isOpen);
+        const isOpen = menu?.classList.toggle("menu-open");
+        if (isOpen !== undefined) {
+          div.classList.toggle("menu-active", isOpen);
+        }
       });
 
-      menu.querySelector(".play-next").addEventListener("click", e => {
+      menu?.querySelector(".play-next")?.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
         queuePlayNext(originalIndex);
-        menu.classList.remove("menu-open");
+        menu?.classList.remove("menu-open");
         div.classList.remove("menu-active");
       });
 
-      menu.querySelector(".add-queue").addEventListener("click", e => {
+      menu?.querySelector(".add-queue")?.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
         addToQueue(originalIndex);
-        menu.classList.remove("menu-open");
+        menu?.classList.remove("menu-open");
         div.classList.remove("menu-active");
       });
 
-      menu.querySelector(".remove-song").addEventListener("click", async e => {
+      menu?.querySelector(".remove-song")?.addEventListener("click", async e => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -607,6 +649,7 @@ window.addEventListener("resize", updatePlayerBarHeight);
         }
 
         removeSongFromAllPlaylists(song.dbId);
+        removeLike(song.dbId);
         await deleteSongFromDB(song.dbId);
         songs.splice(originalIndex, 1);
 
@@ -898,5 +941,34 @@ window.addEventListener("resize", updatePlayerBarHeight);
   window.getCurrentSongId = () => songs[currentIndex]?.dbId;
   window.isSongPlaying = () => !audio.paused;
 
-
+  nowPlayingLikeBtn?.addEventListener("click", () => {
+    const current = songs[currentIndex];
+    if (!current) return;
+    const liked = isLiked(current.dbId);
+    if (liked) {
+      removeLike(current.dbId);
+    } else {
+      addLike(current.dbId);
+    }
+    nowPlayingLikeBtn.classList.toggle("active", !liked);
+    const icon = nowPlayingLikeBtn.querySelector("i");
+    if (icon) {
+      icon.className = !liked ? "fa-solid fa-heart" : "fa-regular fa-heart";
+    }
+    document.querySelectorAll(".song").forEach(row => {
+      const idx = Number(row.dataset.originalIndex);
+      if (songs[idx]?.dbId === current.dbId) {
+        const btn = row.querySelector(".like-btn i");
+        if (btn) {
+          btn.className = !liked ? "fa-solid fa-heart" : "fa-regular fa-heart";
+        }
+        row.querySelector(".like-btn")?.classList.toggle("active", !liked);
+      }
+    });
+    if (typeof document !== "undefined") {
+      document.dispatchEvent(new CustomEvent("playlists-updated"));
+    }
+  });
 });
+
+

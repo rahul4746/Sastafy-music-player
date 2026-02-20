@@ -1,5 +1,6 @@
 
 const PLAYLISTS_KEY = "beatflow_playlists";
+const LIKES_KEY = "beatflow_likes";
 
 function loadPlaylists() {
   const raw = localStorage.getItem(PLAYLISTS_KEY);
@@ -75,6 +76,47 @@ function removeSongFromAllPlaylists(songId) {
   }
 }
 
+function loadLikes() {
+  const raw = localStorage.getItem(LIKES_KEY);
+  if (!raw) return [];
+  try {
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLikes(ids) {
+  localStorage.setItem(LIKES_KEY, JSON.stringify(ids.map(String)));
+}
+
+function isLiked(songId) {
+  const id = String(songId);
+  const likes = loadLikes();
+  return likes.includes(id);
+}
+
+function addLike(songId) {
+  const id = String(songId);
+  const likes = new Set(loadLikes());
+  likes.add(id);
+  saveLikes([...likes]);
+  return [...likes];
+}
+
+function removeLike(songId) {
+  const id = String(songId);
+  const likes = new Set(loadLikes());
+  likes.delete(id);
+  saveLikes([...likes]);
+  return [...likes];
+}
+
+function getLikes() {
+  return loadLikes();
+}
+
 export {
   loadPlaylists,
   savePlaylists,
@@ -82,6 +124,11 @@ export {
   addSongToPlaylist,
   removeSongFromPlaylist,
   deletePlaylist,
-  removeSongFromAllPlaylists
+  removeSongFromAllPlaylists,
+  loadLikes,
+  saveLikes,
+  isLiked,
+  addLike,
+  removeLike,
+  getLikes
 };
-

@@ -1,5 +1,5 @@
 
-# 🎵 Sastafy
+# 🎵 BeatFlow
 
 A lightweight, offline-capable web music player built with pure HTML, CSS, and JavaScript.  
 Add your local MP3 files, manage a playlist, and enjoy music without ads or internet.
@@ -25,23 +25,10 @@ Add your local MP3 files, manage a playlist, and enjoy music without ads or inte
 - Font Awesome
 - Service Worker (PWA)
 
-## 📁 Project Structure
-
-music_player/
-├── index.html
-├── style.css
-├── manifest.json
-├── sw.js
-├── js/
-│   └── player.js
-└── assets/
-    └── images/
-        └── default.jpg
-
 ## 🚀 Getting Started
 
 1. Clone the repo
-   git clone https://github.com/your-username/sastafy.git
+   git clone https://github.com/rahul4746/beatflow-music
 
 2. Open index.html in your browser  
    or host using GitHub Pages

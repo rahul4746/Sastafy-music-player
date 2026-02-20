@@ -4,7 +4,11 @@ import {
   createPlaylist,
   addSongToPlaylist,
   removeSongFromPlaylist,
-  deletePlaylist
+  deletePlaylist,
+  getLikes,
+  isLiked,
+  addLike,
+  removeLike
 } from "./playlist-storage.js";
 import { addToQueue, playNext as queuePlayNext } from "./queue.js";
 import { openSongPlaylistPanel } from "./playlist-song-panel.js";
@@ -89,6 +93,22 @@ function renderPlaylistsHome() {
   const playlists = loadPlaylists();
   playlistList.innerHTML = "";
 
+  const likedCount = getLikes().length;
+  const likedCard = document.createElement("button");
+  likedCard.type = "button";
+  likedCard.className = "playlist-card";
+  likedCard.innerHTML = `
+      <div class="playlist-card-cover">
+        <i class="fa-solid fa-heart"></i>
+      </div>
+      <div class="playlist-card-info">
+        <h3>Liked Songs</h3>
+        <p>${likedCount} song${likedCount === 1 ? "" : "s"}</p>
+      </div>
+    `;
+  likedCard.addEventListener("click", () => openPlaylistView("liked"));
+  playlistList.appendChild(likedCard);
+
   if (!playlists.length) {
     const empty = document.createElement("p");
     empty.className = "playlist-empty";
@@ -152,8 +172,138 @@ function closePlaylistView({ useHistory = true } = {}) {
 
 function renderPlaylistView() {
   if (!playlistViewList || !activePlaylistId) return;
+  if (activePlaylistId === "liked") {
+    const likes = getLikes();
+    if (playlistViewTitle) playlistViewTitle.textContent = "Liked Songs";
+    if (playlistViewCount) {
+      playlistViewCount.textContent = `${likes.length} song${likes.length === 1 ? "" : "s"}`;
+    }
+    if (playlistAddSongsBtn) playlistAddSongsBtn.style.display = "none";
+    if (playlistAddDeviceBtn) playlistAddDeviceBtn.style.display = "none";
+    if (playlistDeleteBtn) playlistDeleteBtn.style.display = "none";
+    playlistViewList.innerHTML = "";
+    if (!likes.length) {
+      const empty = document.createElement("p");
+      empty.className = "playlist-empty";
+      empty.textContent = "No liked songs";
+      playlistViewList.appendChild(empty);
+      return;
+    }
+    likes.forEach((songId, index) => {
+      const song = findSongById(songId);
+      const row = document.createElement("div");
+      row.className = "playlist-song";
+      row.dataset.songId = String(songId);
+      row.innerHTML = `
+        <span class="index">${index + 1}</span>
+        <div class="eq">
+          <span></span><span></span><span></span>
+        </div>
+        <img class="playlist-song-cover" src="${song?.cover || "assets/images/default.png"}" onerror="this.src='assets/images/default.png'" />
+        <div class="playlist-song-info">
+          <h4>${song?.title || "Unavailable song"}</h4>
+          <p>${song?.artist || "Song not found"}</p>
+        </div>
+        <div class="playlist-song-actions">
+          <button class="playlist-like-btn" aria-label="Unlike">
+            <i class="${isLiked(songId) ? "fa-solid fa-heart" : "fa-regular fa-heart"}"></i>
+          </button>
+          <button class="playlist-menu-btn" aria-label="Playlist options">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+        </div>
+        <div class="playlist-menu">
+          <button class="playlist-play-next">
+            <i class="fa-solid fa-forward-step"></i>
+            Play next
+          </button>
+          <button class="playlist-add-queue">
+            <i class="fa-solid fa-list-ul"></i>
+            Add to queue
+          </button>
+          <button class="playlist-remove">
+            <i class="fa-solid fa-minus"></i>
+            Remove from playlist
+          </button>
+        </div>
+      `;
+      row.addEventListener("click", event => {
+        if (event.target.closest(".playlist-menu-btn") || event.target.closest(".playlist-menu") || event.target.closest(".playlist-like-btn")) return;
+        const idx = getSongIndexById(songId);
+        if (idx < 0) return;
+        if (typeof window.loadSong === "function") {
+          window.loadSong(idx, true, "manual");
+        }
+      });
+      const likeBtn = row.querySelector(".playlist-like-btn");
+      likeBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        const liked = isLiked(songId);
+        if (liked) {
+          removeLike(songId);
+        } else {
+          addLike(songId);
+        }
+        const icon = likeBtn.querySelector("i");
+        if (icon) {
+          icon.className = !liked ? "fa-solid fa-heart" : "fa-regular fa-heart";
+        }
+        renderPlaylistsHome();
+        renderPlaylistView();
+      });
+      const menuBtn = row.querySelector(".playlist-menu-btn");
+      const menu = row.querySelector(".playlist-menu");
+      menuBtn.addEventListener("click", event => {
+        event.stopPropagation();
+        document.querySelectorAll(".playlist-menu").forEach(item => {
+          if (item !== menu) {
+            item.classList.remove("menu-open");
+            item.closest(".playlist-song")?.classList.remove("menu-active");
+          }
+        });
+        const isOpen = menu.classList.toggle("menu-open");
+        row.classList.toggle("menu-active", isOpen);
+      });
+      menu.querySelector(".playlist-play-next").addEventListener("click", event => {
+        event.stopPropagation();
+        const idx = getSongIndexById(songId);
+        if (idx < 0) {
+          menu.classList.remove("menu-open");
+          row.classList.remove("menu-active");
+          return;
+        }
+        queuePlayNext(idx);
+        menu.classList.remove("menu-open");
+        row.classList.remove("menu-active");
+      });
+      menu.querySelector(".playlist-add-queue").addEventListener("click", event => {
+        event.stopPropagation();
+        const idx = getSongIndexById(songId);
+        if (idx < 0) {
+          menu.classList.remove("menu-open");
+          row.classList.remove("menu-active");
+          return;
+        }
+        addToQueue(idx);
+        menu.classList.remove("menu-open");
+        row.classList.remove("menu-active");
+      });
+      menu.querySelector(".playlist-remove").addEventListener("click", event => {
+        event.stopPropagation();
+        removeLike(songId);
+        renderPlaylistsHome();
+        renderPlaylistView();
+      });
+      playlistViewList.appendChild(row);
+    });
+    syncPlaylistActiveState();
+    return;
+  }
   const playlist = loadPlaylists().find(item => item.id === activePlaylistId);
   if (!playlist) return;
+  if (playlistAddSongsBtn) playlistAddSongsBtn.style.display = "";
+  if (playlistAddDeviceBtn) playlistAddDeviceBtn.style.display = "";
+  if (playlistDeleteBtn) playlistDeleteBtn.style.display = "";
 
   if (playlistViewTitle) playlistViewTitle.textContent = playlist.name;
   if (playlistViewCount) {
@@ -187,6 +337,9 @@ function renderPlaylistView() {
         <p>${song?.artist || "Song not found"}</p>
       </div>
       <div class="playlist-song-actions">
+        <button class="playlist-like-btn" aria-label="Like">
+          <i class="${isLiked(songId) ? "fa-solid fa-heart" : "fa-regular fa-heart"}"></i>
+        </button>
         <button class="playlist-add-btn" aria-label="Add to playlists">
           <i class="fa-regular fa-square-plus"></i>
         </button>
@@ -220,6 +373,21 @@ function renderPlaylistView() {
     });
 
     const addBtn = row.querySelector(".playlist-add-btn");
+    const likeBtn = row.querySelector(".playlist-like-btn");
+    likeBtn.addEventListener("click", event => {
+      event.stopPropagation();
+      const liked = isLiked(songId);
+      if (liked) {
+        removeLike(songId);
+      } else {
+        addLike(songId);
+      }
+      const icon = likeBtn.querySelector("i");
+      if (icon) {
+        icon.className = !liked ? "fa-solid fa-heart" : "fa-regular fa-heart";
+      }
+      renderPlaylistsHome();
+    });
     const menuBtn = row.querySelector(".playlist-menu-btn");
     const menu = row.querySelector(".playlist-menu");
     addBtn.addEventListener("click", event => {
@@ -520,4 +688,3 @@ document.addEventListener("playlists-updated", () => {
 });
 
 renderPlaylistsHome();
-
