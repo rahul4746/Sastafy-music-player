@@ -28,7 +28,7 @@ Add your local MP3 files, manage a playlist, and enjoy music without ads or inte
 ## 🚀 Getting Started
 
 1. Clone the repo
-   git clone https://github.com/rahul4746/beatflow-music
+   git clone https://github.com/rahul4746/beatflow-music.git
 
 2. Open index.html in your browser  
    or host using GitHub Pages
@@ -52,4 +52,3 @@ MIT License
 
 - jsmediatags
 - Font Awesome
-
